@@ -1,22 +1,72 @@
-import { View, Text, StyleSheet } from 'react-native'
-import React from 'react'
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
-import tw from 'twrnc';
+import { View, Text, StyleSheet, Image } from "react-native";
+import React from "react";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import tw from "twrnc";
+import NavOptions from "../components/NavOptions";
+import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
+import { GOOGLE_MAPS_API_KEY } from "@env";
+import { useDispatch } from "react-redux";
+import { setOrigin, setDestination } from "../slices/navSlice";
+import NavFavourites from "../components/NavFavourites";
 
 const HomeScreen = () => {
-  return (
-    <SafeAreaProvider>
-        <SafeAreaView>
-          <Text style={tw `text-red-500 p-10`}>I am the HomeScreen</Text>
-        </SafeAreaView>
-    </SafeAreaProvider>
-  )
-}
+  const dispatch = useDispatch();
 
-export default HomeScreen
+  return (
+    <SafeAreaView style={tw`bg-white h-full`}>
+      <View style={{ padding: 20 }}>
+        <Image
+          style={{
+            width: 100,
+            height: 100,
+            resizeMode: "contain",
+          }}
+          source={{
+            uri: "https://links.papareact.com/gzs",
+          }}
+        />
+        <GooglePlacesAutocomplete
+          placeholder="Where from?"
+          styles={{
+            container: {
+              flex: 0,
+            },
+            textInput: {
+              fontSize: 18,
+            },
+          }}
+          onPress={(data, details = null) => {
+            dispatch(
+              setOrigin({
+                location: details.geometry.location,
+                description: data.description,
+              }),
+            );
+
+            dispatch(setDestination(null));
+          }}
+          fetchDetails={true}
+          returnKeyType={"search"}
+          enablePoweredByContainer={false}
+          minLength={2}
+          query={{
+            key: GOOGLE_MAPS_API_KEY,
+            language: "kr",
+          }}
+          nearbyPlacesAPI="GooglePlacesSearch"
+          debounce={400}
+        />
+        <NavOptions />
+        <NavFavourites />
+      </View>
+    </SafeAreaView>
+  );
+};
+
+export default HomeScreen;
 
 const styles = StyleSheet.create({
-    text:{ 
-        color: 'blue'
-    }
-})
+  text: {
+    color: "blue",
+  },
+});
